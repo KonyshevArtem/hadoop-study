@@ -1,0 +1,3 @@
+Even though the Hadoop framework is written in Java, programs for Hadoop need not to be coded in
+ Java but can also be developed in other languages like Python or C++ (the latter since version 0.14.1).
+ However, Hadoop’s documentation and the most prominent Python example on the Hadoop website could make you think that you must translate your Python code using Jython into a Java jar file. Obviously, this is not very convenient and can even be problematic if you depend on Python features not provided by Jython. Another issue of the Jython approach is the overhead of writing your Python program in such a way that it can interact with Hadoop – just have a look at the example in

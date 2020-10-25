@@ -1,10 +1,13 @@
-import os
 import math
+import os
+import re
 
 from mrjob.job import MRJob
 from mrjob.step import MRStep
 
 DOC_COUNT = 0
+WORD_DELIMITERS = r'[ ,.()?!:;\t\n\[\]]'
+WORD_BLACKLIST = ['a', 'the', 'an', 'is']
 
 
 def get_file_name():
@@ -18,8 +21,9 @@ class DocWordFrequencyStep(MRStep):
 
     def mapper(self, _, line):
         doc = get_file_name()
-        for word in line.split():
-            yield (doc, word), 1
+        for word in re.split(WORD_DELIMITERS, line):
+            if len(word) > 0 and word.lower() not in WORD_BLACKLIST:
+                yield (doc, word), 1
 
     def reducer(self, doc_word, amounts_generator):
         yield doc_word, sum(amounts_generator)
@@ -68,7 +72,6 @@ class TFIDFStep(MRStep):
         super().__init__(**kwargs, mapper=self.mapper, reducer=self.reducer)
 
     def mapper(self, word_doc, values):
-        global DOC_COUNT
         tf = values[0]
         corpus_word_count = values[1]
         idf = math.log(DOC_COUNT / corpus_word_count)
@@ -81,17 +84,10 @@ class TFIDFStep(MRStep):
 
 class TFIDFJob(MRJob):
 
-    def __init__(self, args=None):
-        self.doc_count = 0
-        super().__init__(args)
-
     def run(self):
         global DOC_COUNT
         DOC_COUNT = len(self.options.args)
         super().run()
-
-    def get_doc_count(self):
-        return self.doc_count
 
     def steps(self):
         return [

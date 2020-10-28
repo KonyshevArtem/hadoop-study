@@ -41,7 +41,7 @@ class DocWordFrequencyStep(MRStep):
         doc_count = key[1]
         for word in re.split(WORD_DELIMITERS, line):
             if len(word) > 0 and word.lower() not in WORD_BLACKLIST:
-                yield (doc, word, doc_count), 1
+                yield (doc, word.lower(), doc_count), 1
 
     def reducer(self, key, amounts_generator):
         yield key, sum(amounts_generator)
